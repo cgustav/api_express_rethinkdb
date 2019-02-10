@@ -1,0 +1,16 @@
+{
+  "name": "login_js",
+  "version": "1.0.0",
+  "description": "cool stuff",
+  "main": "app.js",
+  "scripts": {
+    "test": "dev"
+  },
+  "author": "eduardo munoz",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.4",
+    "jsonwebtoken": "^8.4.0",
+    "nodemon": "^1.18.10"
+  }
+}
