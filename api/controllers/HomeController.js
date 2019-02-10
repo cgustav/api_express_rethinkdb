@@ -1,22 +1,20 @@
-const thinker = require('../../lib/rethinkdb')
-
-//const thinker = new rethinkdb(require('../../config/database'))
+const thinker =  require('../../config/thinker')
 
 const home_controller = {};
 
 home_controller.host = async (req, res) => {
-    
-    let lister = await thinker.filter('users', {
+
+    let lister = await thinker.findOne('users', {
         username: 'cgustav'
     })
 
-    //let wea = await thinker.connect()
-    
-    //let config =  thinker.getConfig()
+    let conff = thinker.getConfig()
+
     res.json({
         message: 'Welcome!',
-        result: lister
+        result: lister,
+        config: conff
     }).status(200)
 }
 
-module.exports =  home_controller;
+module.exports = home_controller;
