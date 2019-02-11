@@ -1,4 +1,9 @@
-module.exports = (req, res, next) => {
+const thinker = require('./thinker')
 
-    next()
+module.exports = {
+
+    init: () => {
+        const users = require('../api/models/users')
+
+    }
 }

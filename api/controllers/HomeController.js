@@ -1,13 +1,14 @@
-const thinker =  require('../../config/thinker')
+//åconst thinker =  require('../../config/thinker')
 
 const home_controller = {};
 
 home_controller.host = async (req, res) => {
 
+    /*
     let lister = await thinker.findOne('users', {
         username: 'cgustav'
     })
-
+ */
     let conff = thinker.getConfig()
 
     res.json({
