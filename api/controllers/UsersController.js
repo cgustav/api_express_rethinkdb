@@ -14,11 +14,13 @@ const user_controller = {
 
     search: async (req, res) => {
         const username = req.param('username')
+        /*
         const data = await user.filter({
             username
         })
-
-        res.json(data).status(200)
+        */
+        data = await user.getPublicDocument(username)
+        return res.json(data).status(200)
     },
 
     create: async (req, res) => {
@@ -51,7 +53,6 @@ const user_controller = {
         if (isEmpty(data[0])) {
 
             let created_user = await new user(_user).save()
-            console.log('[log] user created')
 
             return res.json({
                 title: 'User created',
