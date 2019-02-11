@@ -1,26 +1,34 @@
-const logger = require('morgan')
-const body_parser = require('body-parser')
-const router = require('./routes')
-// const prob =  require('../lib/probing')
-// const _probe = new prob()
 const dotenv = require('dotenv').config()
-const db = require('./database')
-const models =  require('./models')
 
 module.exports = app => {
 
-    models.init()
-    db.ready()
+    /*=============================================
+    =                 DATASTORE                   =
+    =============================================*/
+    const db = require('./database')
+    const models = require('./models')
+
+
+    db.ready();
+    models.init();
 
     /*=============================================
     =                 MIDDLEWARE                 =
     =============================================*/
+    const logger = require('morgan')
+    const body_parser = require('body-parser')
+
 
     app.use(logger('dev'))
     app.use(body_parser.urlencoded({
         extended: false
     }));
     app.use(body_parser.json());
+
+    /*=============================================
+    =                 ROUTING                     =
+    =============================================*/
+    const router = require('./routes')
 
 
     router(app)
