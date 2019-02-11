@@ -10,8 +10,8 @@ module.exports = app => {
     router.get('/', home.host)
     router.get('/login', auth.serve)
     router.post('/login', auth.login)
-    router.get('/users/:username', users.search)
     router.get('/users/', users.list)
+    router.get('/users/:username', users.search)
     router.post('/users/', users.create)
 
     app.use(router)
