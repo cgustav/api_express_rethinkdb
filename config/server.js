@@ -18,12 +18,13 @@ module.exports = app => {
     const logger = require('morgan')
     const body_parser = require('body-parser')
 
-
     app.use(logger('dev'))
     app.use(body_parser.urlencoded({
-        extended: false
+        extended: true
     }));
     app.use(body_parser.json());
+
+
 
     /*=============================================
     =                 ROUTING                     =

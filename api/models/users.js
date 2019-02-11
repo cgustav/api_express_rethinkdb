@@ -15,6 +15,7 @@ const user_schema = think.createModel(
     'users', {
         id: type.string().uuid(4),
         name: type.string().max(255),
+        username: type.string().max(20),
         email: type.string().max(200),
         birthdate: type.date(),
         auth: {
