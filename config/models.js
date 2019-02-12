@@ -8,13 +8,14 @@ module.exports = {
 
     init: async () => {
         const models = require('../api/models/index')
+        const hashed = '$2a$10$vLKJdMRqSXxXJL.3XPcYeOlz9.b0Jtsum0c0iRMMlNYSlZRvjKYWW' //1234
 
         let user = await find_or_create(models.user, {
-            username: 'dropex',
+            username: 'test',
             name: 'Pedro',
-            email: 'pedro@pedro.cl',
+            email: 'test@test.cl',
             auth: {
-                password: '1234' //1234
+                password: hashed //1234
             }
         })
 
@@ -23,7 +24,7 @@ module.exports = {
             name: 'Eduardo',
             email: 'edo@edo.cl',
             auth: {
-                password: '1234' //1234
+                password: hashed //1234
             }
         })
 

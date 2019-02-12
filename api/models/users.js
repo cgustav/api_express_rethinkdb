@@ -24,14 +24,9 @@ user_schema.getView = async function (username) {
 
     try {
 
-        let users = await this.filter(r.row('username').eq(username))
+        let users = await this.filter(r.row('username').eq(username)).without('auth')
 
-        if (users.length) {
-            delete users[0].auth
-            return users[0]
-        }
-
-        return null
+        return users[0]
     } catch (error) {
         console.log('DB cannot get view :  ', error)
         return null
@@ -43,6 +38,7 @@ user_schema.getAllView = async function () {
     try {
 
         let users = await this.run()
+        console.log(users)
 
         if (users.length) {
             for (const _user of users) {
@@ -59,7 +55,7 @@ user_schema.getAllView = async function () {
     }
 }
 
-user_schema.getUserByUsername = async (username) => {
+user_schema.getUserByUsername = async function (username) {
     try {
 
         let users = await this.filter(r.row('username').eq(username))
@@ -73,12 +69,30 @@ user_schema.getUserByUsername = async (username) => {
     }
 }
 
-user_schema.docAddListener('saved', (user) => {
+user_schema.comparePassword = async function (password) {
+    try {
+
+        return await bcrypt.compare(password, this.auth.password)
+    } catch (error) {
+        console.log('DB cannot get user :  ', error)
+        return null
+    }
+}
+
+/*
+user_schema.docAddListener('saving', function (user) {
+
 
     console.log('[log] user created')
 });
+*/
 
-user_schema.addListener('retrieved', (doc) => {
+user_schema.docAddListener('saved', function (user) {
+    console.log(user)
+    console.log('[log] user created')
+});
+
+user_schema.addListener('retrieved', function (doc) {
 
     doc.retrieved = new Date();
 });
