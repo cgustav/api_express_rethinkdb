@@ -1,7 +1,5 @@
-require('dotenv').config()
-
 const Thinky = require('thinky')
-
+require('dotenv').config()
 
 const think = Thinky({
     host: process.env.DB_HOST,
@@ -16,7 +14,6 @@ const ready = () => think.dbReady()
     })
     .catch(err => {
         console.log('Ups: ', err)
-        //
     })
 
 const r = think.r

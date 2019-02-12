@@ -1,8 +1,3 @@
-/*
-const thinky = require('thinky')();
-const type = thinky.type;
-const r = thinky.r;
-*/
 const {
     think,
     type,
@@ -19,11 +14,7 @@ const user_schema = think.createModel(
         email: type.string().max(200),
         birthdate: type.date(),
         auth: {
-            password: type.string().default(function () {
-                this.password = 'shit'
-            }),
-            facebook: type.string(),
-            google: type.string(),
+            password: type.string(),
         },
         createdAt: type.date().default(r.now())
     }
@@ -56,34 +47,26 @@ user_schema.getAllView = async function (username) {
 
     return null
 }
+
+user_schema.getUserByUsername = async function (username) {
+
+    const users = await this.filter({
+        username
+    })
+
+    if (users.length) return users[0]
+
+    return null
+}
+
 /*
-user_schema.docAddListener('saving', function (user) {
-    const bcrypt = require('bcryptjs')
+user_schema.comparePasswords = (password) => {
 
-    bcrypt.genSalt()
-        .then(salt => {
-            bcrypt.hash(user.auth.password, salt)
-                .then(hash => {
-                    user.auth.password = 'hash'
-                    console.log(user.auth.password)
-                    console.log('you hashed!')
-                    //return user.saveAll()
-
-                })
-                .catch(err => {
-                    console.log('bcrypt cannot hash :  ', err)
-                })
-        })
-        .catch(err => {
-            console.log('bcrypt cannot salt :  ', err)
-        })
-
-
-});
+}
 */
 
 user_schema.docAddListener('saved', function (user) {
-    console.log('[log] user created with')
+    console.log('[log] user created')
 
 });
 

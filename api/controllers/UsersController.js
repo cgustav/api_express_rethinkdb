@@ -1,5 +1,7 @@
 const isEmpty = require('../../lib/queryValidator')
-const hashThis =  require('../../lib/hashThis')
+const {
+    hashThis
+} = require('../../lib/hash_util')
 
 const {
     user
@@ -15,14 +17,14 @@ const user_controller = {
 
     search: async (req, res) => {
         const username = req.param('username')
-        /*
+        /* FIXME THIS
         const data = await user.filter({
             username
         })
         */
-        data = await user.getPublicDocument(username)
+        //data = await user.getPublicDocument(username)
 
-        return res.json(data).status(200)
+        return res.sendStatus(200)
     },
 
     create: async (req, res) => {
@@ -56,7 +58,6 @@ const user_controller = {
 
         if (isEmpty(data[0])) {
 
-            /** Hashing */
             _user.auth.password = await hashThis(password)
 
             let created_user = await new user(_user).save()
