@@ -10,35 +10,20 @@ const {
 const auth_controller = {
 
     serve: (req, res) => {
-
+        return res.send("In maintainance").status('500')
     },
 
     // =====================================
     // LOGIN ===============================
     // =====================================
-    
+
     login: async (req, res) => {
-        let username = req.body.username;
-        let password = req.body.password;
-        let data
-        let match
-
-        try {
-
-            if (isEmpty(username, password)) return res.send("Empty fields").status(400)
-            else data = await user.getUserByUsername(username)
-
-            if (data) match = await bcrypt.compare(password, data.auth.password)
-            else return res.send("user does not exists").status(400)
-
-            if (match) return res.send("Authenticated!")
-            else return res.send("username or password invalid! xit")
-
-        } catch (error) {
-            console.log('Login failed! ', error)
-        }
+        res.sendStatus(300)
     },
 
+    // =====================================
+    // GITHUB OAUTH ========================
+    // =====================================
     github: (req, res) => {
 
 
@@ -47,6 +32,11 @@ const auth_controller = {
     forbidden: async (req, res) => {
 
         return res.sendStatus(403)
+
+    },
+    success: async (req, res) => {
+
+        return res.send("authenticated!").status(200)
 
     }
 

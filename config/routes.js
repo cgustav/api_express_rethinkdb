@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-
+const passport = require('passport')
 //controllers
 const users = require('../api/controllers/UsersController');
 const auth = require('../api/controllers/AuthController');
@@ -19,9 +19,17 @@ module.exports = app => {
     =============================================*/
 
     router.get('/login', auth.serve)
-    router.post('/login', auth.login)
-    router.get('/success', home.success)
+
+    router.post('/login', passport.authenticate('local', {
+            failureRedirect: '/forbidden'
+        }),
+        function (req, res) {
+            res.redirect('/success');
+        }, auth.login)
+
+    router.get('/success', auth.success)
     router.get('/forbidden', auth.forbidden)
+
 
     /*=============================================
     =                   OAUTH                     =

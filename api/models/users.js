@@ -25,8 +25,8 @@ user_schema.getView = async function (username) {
     try {
 
         let users = await this.filter(r.row('username').eq(username)).without('auth')
-
         return users[0]
+
     } catch (error) {
         console.log('DB cannot get view :  ', error)
         return null
@@ -36,19 +36,9 @@ user_schema.getView = async function (username) {
 user_schema.getAllView = async function () {
 
     try {
-
-        let users = await this.run()
-        console.log(users)
-
-        if (users.length) {
-            for (const _user of users) {
-                delete _user.auth
-            }
-
-            return users
-        }
-
-        return null
+        
+        return await this.without('auth')
+    
     } catch (error) {
         console.log('DB cannot get all views :  ', error)
         return null
@@ -59,7 +49,6 @@ user_schema.getUserByUsername = async function (username) {
     try {
 
         let users = await this.filter(r.row('username').eq(username))
-
         if (users.length) return users[0]
 
         return null
@@ -88,7 +77,7 @@ user_schema.docAddListener('saving', function (user) {
 */
 
 user_schema.docAddListener('saved', function (user) {
-    console.log(user)
+    //console.log(user)
     console.log('[log] user created')
 });
 

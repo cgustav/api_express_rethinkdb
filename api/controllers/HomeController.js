@@ -6,10 +6,7 @@ const home_controller = {
 
 
     },
-    success: async (req, res) => {
-
-
-    }
+    
 
     
 };
