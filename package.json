@@ -9,6 +9,7 @@
   "author": "eduardo munoz",
   "license": "ISC",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.3",
     "cors": "^2.8.5",
     "dotenv": "^6.2.0",
@@ -19,6 +20,8 @@
     "morgan": "^1.9.1",
     "nodemon": "^1.18.10",
     "passport": "^0.4.0",
+    "passport-github": "^1.1.0",
+    "passport-local": "^1.0.0",
     "rethinkdb": "^2.3.3",
     "thinky": "^2.3.9"
   }

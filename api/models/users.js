@@ -19,7 +19,9 @@ const user_schema = think.createModel(
         email: type.string().max(200),
         birthdate: type.date(),
         auth: {
-            password: type.string(),
+            password: type.string().default(function () {
+                this.password = 'shit'
+            }),
             facebook: type.string(),
             google: type.string(),
         },
@@ -27,7 +29,7 @@ const user_schema = think.createModel(
     }
 )
 
-user_schema.getPublicDocument = async function (username) {
+user_schema.getView = async function (username) {
 
     const users = await this.filter({
         username
@@ -41,8 +43,47 @@ user_schema.getPublicDocument = async function (username) {
     return null
 }
 
+user_schema.getAllView = async function (username) {
+
+    const users = await this.filter({
+        username
+    })
+
+    if (users.length) {
+        delete users[0].auth
+        return users[0]
+    }
+
+    return null
+}
+/*
+user_schema.docAddListener('saving', function (user) {
+    const bcrypt = require('bcryptjs')
+
+    bcrypt.genSalt()
+        .then(salt => {
+            bcrypt.hash(user.auth.password, salt)
+                .then(hash => {
+                    user.auth.password = 'hash'
+                    console.log(user.auth.password)
+                    console.log('you hashed!')
+                    //return user.saveAll()
+
+                })
+                .catch(err => {
+                    console.log('bcrypt cannot hash :  ', err)
+                })
+        })
+        .catch(err => {
+            console.log('bcrypt cannot salt :  ', err)
+        })
+
+
+});
+*/
+
 user_schema.docAddListener('saved', function (user) {
-    console.log('[log] user created')
+    console.log('[log] user created with')
 
 });
 

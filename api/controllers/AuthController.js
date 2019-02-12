@@ -1,15 +1,25 @@
-const auth_controller = {}
+const passport = require('passport');
 
-auth_controller.serve = (req, res) => {
+const auth_controller = {
+
+    serve: (req, res) => {
+
+    },
+
+    github: (req, res) => {
+
+
+    },
+
+    login: (req, res) => {
+
+    },
+
+    forbidden: async (req, res) => {
+
+        return res.sendStatus(403)
+
+    }
 
 }
-
-auth_controller.login = (req, res) => {
-
-}
-
-auth_controller.logout = (req, res) => {
-
-}
-
 module.exports = auth_controller;

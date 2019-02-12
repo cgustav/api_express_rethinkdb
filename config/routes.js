@@ -9,12 +9,26 @@ const home = require('../api/controllers/HomeController');
 module.exports = app => {
 
     /*=============================================
+    =                   HOME                     =
+    =============================================*/
+    router.get('/', home.home)
+
+
+    /*=============================================
     =                   LOGIN                     =
     =============================================*/
 
-    router.get('/', home.host)
     router.get('/login', auth.serve)
     router.post('/login', auth.login)
+    router.get('/success', home.success)
+    router.get('/forbidden', auth.forbidden)
+
+    /*=============================================
+    =                   OAUTH                     =
+    =============================================*/
+
+    router.get('/oauth/github', auth.github)
+
 
     /*=============================================
     =                   USERS                     =

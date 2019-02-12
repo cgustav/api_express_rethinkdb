@@ -24,7 +24,12 @@ module.exports = app => {
     }));
     app.use(body_parser.json());
 
+    /*=============================================
+    =                     AUTH                    =
+     =============================================*/
+     const passport_config = require('./passport')
 
+     passport_config(app)
 
     /*=============================================
     =                 ROUTING                     =
