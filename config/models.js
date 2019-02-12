@@ -1,5 +1,8 @@
 //const thinker = require('./thinker')
 const find_or_create = require('../lib/findOrCreate')
+const {
+    hashThis
+} = require('../lib/hash_util')
 
 module.exports = {
 
@@ -11,7 +14,7 @@ module.exports = {
             name: 'Pedro',
             email: 'pedro@pedro.cl',
             auth: {
-                password: '1234'
+                password: '1234' //1234
             }
         })
 
@@ -20,7 +23,7 @@ module.exports = {
             name: 'Eduardo',
             email: 'edo@edo.cl',
             auth: {
-                password: '1234'
+                password: '1234' //1234
             }
         })
 

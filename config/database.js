@@ -2,10 +2,10 @@ const Thinky = require('thinky')
 require('dotenv').config()
 
 const think = Thinky({
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    authKey: process.env.DB_AUTHKEY,
-    db: process.env.DB_NAME
+    host: process.env.DB_HOST || 'localhost',
+    port: process.env.DB_PORT || '28015',
+    authKey: process.env.DB_AUTHKEY || '',
+    db: process.env.DB_NAME || 'ozen_db'
 })
 
 const ready = () => think.dbReady()
@@ -25,3 +25,4 @@ module.exports = {
     r,
     type
 }
+

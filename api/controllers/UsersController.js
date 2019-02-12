@@ -1,4 +1,6 @@
 const isEmpty = require('../../lib/queryValidator')
+const findOrCreate = require('../../lib/findOrCreate')
+
 const {
     hashThis
 } = require('../../lib/hash_util')
@@ -10,21 +12,17 @@ const {
 const user_controller = {
 
     list: async (req, res) => {
-        const data = await user.run()
+        //let data = await user.run() //deprecated
+        let data = await user.getAllView()
 
         res.json(data).status(200)
     },
 
     search: async (req, res) => {
-        const username = req.param('username')
-        /* FIXME THIS
-        const data = await user.filter({
-            username
-        })
-        */
-        //data = await user.getPublicDocument(username)
+        let username = req.param('username')
+        let data = await user.getView(username)
 
-        return res.sendStatus(200)
+        return res.send(data).status(200)
     },
 
     create: async (req, res) => {

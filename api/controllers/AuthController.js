@@ -37,9 +37,7 @@ const auth_controller = {
 
 
     },
-
-
-
+    
     forbidden: async (req, res) => {
 
         return res.sendStatus(403)
