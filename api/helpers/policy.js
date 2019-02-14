@@ -1,14 +1,14 @@
 const passport = require('passport')
 
 const policy = {
-    //Apply passport strategy
+    //Apply passport any strategy
     apply: function (strategyName) {
         return passport.authenticate(strategyName)
     },
-    //Setup handler strategy
+    //Setup one handler for selected strategy
     handler: function (strategyName, failureRedirect) {
         return passport.authenticate(strategyName, {
-            failureRedirect: failureRedirect
+            failureRedirect // : failureRedirect
         })
     },
     //Calllback strategy
@@ -18,22 +18,27 @@ const policy = {
             res.redirect(successRedirect)
         }
     },
-    complexHandler: async (handlerName, failureRedirect, successRedirect) => {
-        passport.authenticate(handlerName, {
-                failureRedirect: failureRedirect
-            }),
-            function (req, res) {
-                console('[log] ', req.username, 'logging in ')
-                res.redirect(successRedirect);
-            }
+
+
+    //DONT USE THESE METHODS YET (EXPERIMENTAL)
+    complexApply: function (strategyName, failureFlashMessage) {
+        return passport.authenticate(strategyName, {
+            failureFlash: failureFlashMessage
+        });
+    },
+    //For more complex passport auth algorithm: incomplete
+    complexHandler: function (strategyName, failureRedirect, successRedirect) {
+        passport.authenticate(strategyName, {
+            successRedirect,
+            failureRedirect,
+            failureFlash: true
+        })
+
     }
+
+
 }
 
-const policy_util = function (req, res) {
-    res.redirect('/sucess')
-}
 
-module.exports = {
-    policy,
-    policy_util
-}
+
+module.exports = policy

@@ -68,14 +68,6 @@ user_schema.comparePassword = async function (password) {
     }
 }
 
-/*
-user_schema.docAddListener('saving', function (user) {
-
-
-    console.log('[log] user created')
-});
-*/
-
 user_schema.docAddListener('saved', function (user) {
     //console.log(user)
     console.log('[log] user created')
