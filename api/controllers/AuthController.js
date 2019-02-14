@@ -31,7 +31,10 @@ const auth_controller = {
 
 
     },
+    githubCB: (req, res) => {
+        return res.send("All Ok").status(200)
 
+    },
     forbidden: async (req, res) => {
 
         return res.sendStatus(403)

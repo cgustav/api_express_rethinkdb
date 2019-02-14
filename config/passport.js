@@ -1,5 +1,6 @@
 let {
-    user
+    user,
+    identities
 } = require('../api/models/index');
 const dotenv = require('dotenv').config()
 const bcrypt = require('bcryptjs')
@@ -39,7 +40,7 @@ module.exports = function (passport) {
 
                 return done(null, false)
             } catch (error) {
-                console.log('cannot authenticate :  ', err)
+                console.log('cannot authenticate :  ', error)
                 return done(error)
             }
 
@@ -59,17 +60,29 @@ module.exports = function (passport) {
 
             try {
 
-                console.log(profile)
-                // let match
-                let data = await user.get(profile.id).run()
-                if (data) return cb(null, user)
+                let data = await identities.filter({
+                    provider: profile.provider,
+                    extern_uid: profile.id
+                })
 
-                return cb(null, false)
+                if (data[0]) return cb(null, data)
 
-                // let _user =  new user({
-                //     id: profile.id,
+                let _user = await new user({
+                    name: profile.displayName,
+                    username: profile.username,
+                    email: profile.emails[0].value,
+                    photo: profile.photos[0].value,
+                    location: profile._json.location
+                }).save()
 
-                // })
+                let _identity = await new identities({
+                    provider: profile.provider,
+                    extern_uid: profile.id,
+                    profile_url: profile.profileUrl,
+                    user_id: _user.id
+                }).save()
+
+                return cb(null, _user)
 
             } catch (error) {
                 console.log('cannot authenticate github access :  ', error)
@@ -77,13 +90,6 @@ module.exports = function (passport) {
             }
         }
     ));
-
-
-
-
-
-
-
 
     /*
     // Configuración del autenticado con Twitter

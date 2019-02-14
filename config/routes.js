@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-//const passport = require('passport');//deprecated
+const passport = require('passport'); //deprecated
 //controllers
 const users = require('../api/controllers/UsersController');
 const auth = require('../api/controllers/AuthController');
@@ -20,8 +20,7 @@ module.exports = app => {
     =                   LOGIN                     =
     =============================================*/
     router.get('/login', auth.serve)
-    router.post('/login', policy.handler('local', '/forbidden'),
-        policy.callback('/success'), auth.login)
+    router.post('/login', policy.complexHandler('local', '/forbidden', '/success'))
 
     router.get('/success', auth.success)
     router.get('/forbidden', auth.forbidden)
@@ -30,10 +29,9 @@ module.exports = app => {
     /*=============================================
     =                   OAUTH                     =
     =============================================*/
-    router.get('/auth/github', policy.apply('github'), auth.github)
+    app.get('/auth/github', policy.apply('github'))
+    app.get('/auth/github/callback', policy.complexHandler('github', '/forbidden', '/success'))
 
-    router.get('/auth/github/callback', policy.handler('github', '/forbidden'),
-        policy.callback('/success'), auth.github)
 
     /*=============================================
     =                   USERS                     =

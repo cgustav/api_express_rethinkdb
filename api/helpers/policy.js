@@ -5,7 +5,7 @@ const policy = {
     apply: function (strategyName) {
         return passport.authenticate(strategyName)
     },
-    //Setup one handler for selected strategy
+    //Setup handler for selected strategy
     handler: function (strategyName, failureRedirect) {
         return passport.authenticate(strategyName, {
             failureRedirect // : failureRedirect
@@ -26,11 +26,11 @@ const policy = {
             failureFlash: failureFlashMessage
         });
     },
-    //For more complex passport auth algorithm: incomplete
+    //For more complex passport auth algorithm
     complexHandler: function (strategyName, failureRedirect, successRedirect) {
-        passport.authenticate(strategyName, {
-            successRedirect,
+        return passport.authenticate(strategyName, {
             failureRedirect,
+            successRedirect,
             failureFlash: true
         })
 

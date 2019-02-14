@@ -46,16 +46,16 @@ const user_controller = {
         let data = await user.filter({
             username: _user.username
         })
-
-        if (isEmpty(data[0])) {
+        console.log('imprimiendo data: ', data)
+        if (isEmpty(data)) {
             data = await user.filter({
                 email: _user.email
             })
         } else return res.send('ERROR: Existing username!').status(400)
 
+        console.log('imprimiendo data 2 : ', data)
 
-        if (isEmpty(data[0])) {
-
+        if (isEmpty(data)) {
             _user.auth.password = await hashThis(password)
 
             let created_user = await new user(_user).save()
@@ -68,7 +68,7 @@ const user_controller = {
         } else return res.send('ERROR: Existing email!').status(400)
 
     },
-    
+
     update: async (req, res) => {
 
     }
