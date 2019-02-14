@@ -21,7 +21,6 @@ module.exports = (passport) => {
       
 }
 
-
 const local_auth = new LocalStrategy(
     async function (username, password, done) {
         console.log('ejecutando autenticación local')

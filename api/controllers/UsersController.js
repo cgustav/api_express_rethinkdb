@@ -67,6 +67,10 @@ const user_controller = {
 
         } else return res.send('ERROR: Existing email!').status(400)
 
+    },
+    
+    update: async (req, res) => {
+
     }
 
 };

@@ -1,18 +1,16 @@
 let {
     user
 } = require('../api/models/index');
+const dotenv = require('dotenv').config()
 const bcrypt = require('bcryptjs')
-// Estrategia de autenticación con Twitter
-//const TwitterStrategy = require('passport-twitter').Strategy;
-// Estrategia de autenticación con Facebook
-//const FacebookStrategy = require('passport-facebook').Strategy;
-
 const LocalStrategy = require('passport-local').Strategy
+const GitHubStrategy = require('passport-github').Strategy
 
 // Exportamos como módulo las funciones de passport, de manera que
 // podamos utilizarlas en otras partes de la aplicación.
 // De esta manera, mantenemos el código separado en varios archivos
 // logrando que sea más manejable.
+
 module.exports = function (passport) {
 
     // Serializa al usuario para almacenarlo en la sesión
@@ -27,6 +25,9 @@ module.exports = function (passport) {
     });
 
 
+    /*=============================================
+    =               LOCAL STRAGEGY                =
+    =============================================*/
     passport.use(new LocalStrategy(
         async function (username, password, done) {
             try {
@@ -39,11 +40,50 @@ module.exports = function (passport) {
                 return done(null, false)
             } catch (error) {
                 console.log('cannot authenticate :  ', err)
-                return done(err)
+                return done(error)
             }
 
         }
     ));
+
+
+    /*=============================================
+    =               GITHUB STRAGEGY               =
+    =============================================*/
+    passport.use(new GitHubStrategy({
+            clientID: process.env.GITHUB_CLIENT_ID,
+            clientSecret: process.env.GITHUB_CLIENT_SECRET,
+            callbackURL: "/auth/github/callback"
+        },
+        async function (accessToken, refreshToken, profile, cb) {
+
+            try {
+
+                console.log(profile)
+                // let match
+                let data = await user.get(profile.id).run()
+                if (data) return cb(null, user)
+
+                return cb(null, false)
+
+                // let _user =  new user({
+                //     id: profile.id,
+
+                // })
+
+            } catch (error) {
+                console.log('cannot authenticate github access :  ', error)
+                return cb(error)
+            }
+        }
+    ));
+
+
+
+
+
+
+
 
     /*
     // Configuración del autenticado con Twitter

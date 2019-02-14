@@ -1,10 +1,16 @@
 const express = require('express');
 const router = express.Router();
-const passport = require('passport')
+const passport = require('passport');
 //controllers
 const users = require('../api/controllers/UsersController');
 const auth = require('../api/controllers/AuthController');
 const home = require('../api/controllers/HomeController');
+//helpers
+const {
+    policy,
+    policy_util
+} = require('../api/helpers/policy');
+const coll = require('../api/helpers/callback')
 
 module.exports = app => {
 
@@ -17,15 +23,9 @@ module.exports = app => {
     /*=============================================
     =                   LOGIN                     =
     =============================================*/
-
     router.get('/login', auth.serve)
-
-    router.post('/login', passport.authenticate('local', {
-            failureRedirect: '/forbidden'
-        }),
-        function (req, res) {
-            res.redirect('/success');
-        }, auth.login)
+    router.post('/login', policy.handler('local', '/forbidden'),
+        policy.callback('/success'), auth.login)
 
     router.get('/success', auth.success)
     router.get('/forbidden', auth.forbidden)
@@ -34,8 +34,11 @@ module.exports = app => {
     /*=============================================
     =                   OAUTH                     =
     =============================================*/
+    router.get('/auth/github', policy.apply('github'), auth.github)
 
-    router.get('/oauth/github', auth.github)
+    router.get('/auth/github/callback', policy.handler('github', '/forbidden'),
+        policy.callback('/sucess'), auth.github)
+
 
 
     /*=============================================
@@ -45,6 +48,7 @@ module.exports = app => {
     router.get('/users?username=:username', users.search)
     router.get('/users/:username', users.search)
     router.post('/users/', users.create)
+    router.patch('/users/:username', users.update)
 
     app.use(router)
 }

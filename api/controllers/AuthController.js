@@ -1,7 +1,7 @@
 const isEmpty = require('../../lib/queryValidator')
 const passport = require('passport')
 const bcrypt = require('bcryptjs')
-const auth = require('../helpers/auth');
+const auth = require('../helpers/jwt');
 
 const {
     user
@@ -10,7 +10,7 @@ const {
 const auth_controller = {
 
     serve: (req, res) => {
-        return res.send("In maintainance").status('500')
+        return res.send("In maintainance").status(500)
     },
 
     // =====================================
@@ -18,7 +18,10 @@ const auth_controller = {
     // =====================================
 
     login: async (req, res) => {
-        res.sendStatus(300)
+        res.json({
+            title: 'authentication failure',
+            message: 'wrong username or password'
+        }).status(403)
     },
 
     // =====================================
