@@ -25,19 +25,19 @@ const user_schema = think.createModel(
 user_schema.getView = async function (username) {
 
     try {
-        /*
+        /* DEPRECATED
         let users = await this.filter(r.row('username').eq(username)).without('auth')
         return users[0]
         */
         return await r.db('ozen_db').table('users').filter(r.row('username').eq(username))
-            .without('auth')
+            .without(['auth'])
             .merge(function (user) {
                 return {
                     identities: r.db('ozen_db').table('identities')
                         .getAll(user('id'), {
                             index: 'user_id'
                         })
-                        .without(['createdAt', 'id', 'profile_url'])
+                        .without(['createdAt', 'id', 'user_id'])
                         .coerceTo('array')
                 }
             })
@@ -64,14 +64,14 @@ user_schema.getAllView = async function () {
         return await this.without('auth')
         */
         return await r.db('ozen_db').table('users')
-            .without('auth')
+            .without(['auth'])
             .merge(function (user) {
                 return {
                     identities: r.db('ozen_db').table('identities')
                         .getAll(user('id'), {
                             index: 'user_id'
                         })
-                        .without(['createdAt', 'id', 'profile_url'])
+                        .without(['createdAt', 'id', 'user_id'])
                         .coerceTo('array')
                 }
             })

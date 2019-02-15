@@ -15,7 +15,7 @@ const identity_schema = think.createModel(
 )
 
 identity_schema.docAddListener('saved', function (doc) {
-    console.log('[log] identity created: ', doc.id)
+    console.log('[log] identity created: (', doc.provider, ') (', doc.id, ')')
 });
 
 identity_schema.addListener('retrieved', function (doc) {

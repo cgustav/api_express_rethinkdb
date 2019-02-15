@@ -4,8 +4,10 @@ let {
 } = require('../api/models/index');
 const dotenv = require('dotenv').config()
 const bcrypt = require('bcryptjs')
+//strategy
 const LocalStrategy = require('passport-local').Strategy
 const GitHubStrategy = require('passport-github').Strategy
+const GitLabStrategy = require('passport-gitlab2').Strategy
 
 // Exportamos como módulo las funciones de passport, de manera que
 // podamos utilizarlas en otras partes de la aplicación.
@@ -14,13 +16,12 @@ const GitHubStrategy = require('passport-github').Strategy
 
 module.exports = function (passport) {
 
-    // Serializa al usuario para almacenarlo en la sesión
+    // Serializes the user to store it in the session
     passport.serializeUser(function (user, done) {
         done(null, user);
     });
 
-    // Deserializa el objeto usuario almacenado en la sesión para
-    // poder utilizarlo
+    // Deserialize the stored user object in the session to use it
     passport.deserializeUser(function (obj, done) {
         done(null, obj);
     });
@@ -43,7 +44,6 @@ module.exports = function (passport) {
                 console.log('cannot authenticate :  ', error)
                 return done(error)
             }
-
         }
     ));
 
@@ -86,6 +86,52 @@ module.exports = function (passport) {
 
             } catch (error) {
                 console.log('cannot authenticate github access :  ', error)
+                return cb(error)
+            }
+        }
+    ));
+
+
+
+    /*=============================================
+    =               GITLAB STRAGEGY               =
+    =============================================*/
+    passport.use(new GitLabStrategy({
+            clientID: process.env.GITLAB_CLIENT_ID,
+            clientSecret: process.env.GITLAB_CLIENT_SECRET,
+            callbackURL: "/auth/gitlab/callback"
+        },
+        async function (accessToken, refreshToken, profile, cb) {
+
+            try {
+
+                let data = await identities.filter({
+                    provider: profile.provider,
+                    extern_uid: profile.id
+                })
+
+                if (data[0]) return cb(null, data)
+
+                let _user = await new user({
+                    name: profile.displayName,
+                    username: profile.username,
+                    email: profile.emails[0].value,
+                    photo: profile.avatarUrl,
+                    location: profile._json.location
+                }).save()
+
+                let _identity = await new identities({
+                    provider: profile.provider,
+                    extern_uid: profile.id,
+                    profile_url: profile.profileUrl,
+                    user_id: _user.id
+                }).save()
+
+                //console.log(_user)
+
+                return cb(false, _user)
+            } catch (error) {
+                console.log('cannot authenticate gitlab access :  ', error)
                 return cb(error)
             }
         }

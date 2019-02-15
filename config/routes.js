@@ -31,7 +31,9 @@ module.exports = app => {
     =============================================*/
     app.get('/auth/github', policy.apply('github'))
     app.get('/auth/github/callback', policy.complexHandler('github', '/forbidden', '/success'))
-
+   
+    app.get('/auth/gitlab', policy.apply('gitlab'))
+    app.get('/auth/gitlab/callback', policy.complexHandler('gitlab', '/forbidden', '/success'))
 
     /*=============================================
     =                   USERS                     =
