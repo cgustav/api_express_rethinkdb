@@ -19,13 +19,6 @@ const policy = {
         }
     },
 
-
-    //DONT USE THESE METHODS YET (EXPERIMENTAL)
-    complexApply: function (strategyName, failureFlashMessage) {
-        return passport.authenticate(strategyName, {
-            failureFlash: failureFlashMessage
-        });
-    },
     //For more complex passport auth algorithm
     complexHandler: function (strategyName, failureRedirect, successRedirect) {
         return passport.authenticate(strategyName, {

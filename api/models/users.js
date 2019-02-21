@@ -2,9 +2,9 @@ const {
     think,
     type,
     r
-} = require('../../config/database')
+} = require('../../config/database');
 
-const bcrypt = require('bcryptjs')
+const bcrypt = require('bcrypt');
 
 const user_schema = think.createModel(
     'users', {
@@ -18,20 +18,51 @@ const user_schema = think.createModel(
         },
         createdAt: type.date().default(r.now())
     }
-)
+);
 
-//user_schema.hasMany(identities, 'identities', 'id', 'user_id')
 
-user_schema.getView = async function (username) {
+user_schema.init = function(model) {
 
+    model.hasMany(models.identities, 'identities', 'id', 'user_id')
+
+    model.pre('save', async function(next) {
+        this.auth.password = await bcrypt.hash(this.auth.password, 10)
+        next()
+    })
+
+    // model.define('comparePassword', async function(password) {
+    //     return await bcrypt.compare(password, this.auth.password);
+    // })
+
+    model.define("wea", function() {
+        console.log("iswea")
+    });
+
+
+}
+
+//returns user object without auth
+user_schema.logIn = async function(username, password) {
+
+    let _user = await this.getUserBy('username', username)
+    if (!_user) return null
+
+    let match = await bcrypt.compare(password, _user.auth.password)
+
+    if (match) {
+        delete _user.auth
+        return _user
+
+    } else return null
+}
+
+user_schema.getView = async(username) => {
     try {
-        /* DEPRECATED
-        let users = await this.filter(r.row('username').eq(username)).without('auth')
-        return users[0]
-        */
+
         return await r.db('ozen_db').table('users').filter(r.row('username').eq(username))
-            .without(['auth'])
-            .merge(function (user) {
+            .nth(0)
+            .without('auth')
+            .merge(function(user) {
                 return {
                     identities: r.db('ozen_db').table('identities')
                         .getAll(user('id'), {
@@ -39,33 +70,22 @@ user_schema.getView = async function (username) {
                         })
                         .without(['createdAt', 'id', 'user_id'])
                         .coerceTo('array')
-                }
-            })
+                };
+            });
 
     } catch (error) {
-        console.log('DB cannot get view :  ', error)
-        return null
+        if (error.msg === "Index out of bounds: 0") return null;
+        else throw new Error("Internal DB ERROR."); // or return error
     }
 }
 
-user_schema.getAllView = async function () {
+user_schema.getAllView = async() => {
 
     try {
-        /* IDENTITIES
-        return await r.db('ozen_db').table('identities')
-            .eqJoin('user_id', r.db('ozen_db').table('users'))
-            .map(function (seq) {
-                return seq('right').without(['id', 'auth']).merge({
-                    identities: seq('left').without(['id', 'createdAt', 'user_id'])
-                })
-            })
-        */
-        /* DEPRECATED
-        return await this.without('auth')
-        */
+
         return await r.db('ozen_db').table('users')
-            .without(['auth'])
-            .merge(function (user) {
+            .without('auth')
+            .merge(function(user) {
                 return {
                     identities: r.db('ozen_db').table('identities')
                         .getAll(user('id'), {
@@ -73,44 +93,32 @@ user_schema.getAllView = async function () {
                         })
                         .without(['createdAt', 'id', 'user_id'])
                         .coerceTo('array')
-                }
-            })
+                };
+            });
 
     } catch (error) {
-        console.log('DB cannot get all views :  ', error)
-        return null
+        throw new Error("Internal DB ERROR.")
     }
 }
 
-user_schema.getUserByUsername = async function (username) {
+user_schema.getUserBy = async(criteria, value) => {
     try {
-
-        let users = await this.filter(r.row('username').eq(username))
-        if (users.length) return users[0]
-
-        return null
+        if (criteria === "password") return null
+        else return await r.db('ozen_db').table('users').filter(r.row(criteria).eq(value)).nth(0);
     } catch (error) {
-        console.log('DB cannot get user :  ', error)
-        return null
+        //console.log(error)
+        if (error.msg === "Index out of bounds: 0") return null;
+        else throw new Error("Internal DB ERROR."); // or return error
     }
 }
 
-user_schema.comparePassword = async function (password) {
-    try {
+//Event Emitters
 
-        return await bcrypt.compare(password, this.auth.password)
-    } catch (error) {
-        console.log('DB cannot get user :  ', error)
-        return null
-    }
-}
-
-
-user_schema.docAddListener('saved', function (doc) {
+user_schema.docAddListener('saved', (doc) => {
     console.log('[log] user created: (', doc.username, ')', '(', doc.id, ')')
 });
 
-user_schema.addListener('retrieved', function (doc) {
+user_schema.addListener('retrieved', function(doc) {
     doc.retrieved = new Date();
 });
 

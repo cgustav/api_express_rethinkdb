@@ -1,6 +1,4 @@
-const isEmpty = require('../../lib/queryValidator')
 const passport = require('passport')
-const bcrypt = require('bcryptjs')
 const auth = require('../helpers/jwt');
 
 const {
@@ -17,11 +15,31 @@ const auth_controller = {
     // LOGIN ===============================
     // =====================================
 
-    login: async (req, res) => {
-        res.json({
-            title: 'authentication failure',
-            message: 'wrong username or password'
-        }).status(403)
+    login: async(req, res) => {
+        passport.authenticate('local', function(err, user, info) {
+            console.log("en el login")
+            try {
+
+
+                if ((err) || (!user)) return res.status(400).send({
+                    message: info.message,
+                    user
+                });
+
+
+                //   let response = {
+                //     user,
+                //     token
+                //   }
+
+                return res.send(response).status(200) //OK
+            } catch (error) {
+                console.log(error)
+                return res.send("OUCH").status(500)
+            }
+
+        })(req, res)
+
     },
 
     // =====================================
@@ -35,12 +53,12 @@ const auth_controller = {
         return res.send("All Ok").status(200)
 
     },
-    forbidden: async (req, res) => {
+    forbidden: async(req, res) => {
 
         return res.sendStatus(403)
 
     },
-    success: async (req, res) => {
+    success: async(req, res) => {
 
         return res.send("authenticated!").status(200)
 

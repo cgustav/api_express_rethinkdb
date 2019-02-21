@@ -3,8 +3,8 @@ let {
     identities
 } = require('../api/models/index');
 const dotenv = require('dotenv').config()
-const bcrypt = require('bcryptjs')
-//strategy
+const bcrypt = require('bcrypt')
+    //strategy
 const LocalStrategy = require('passport-local').Strategy
 const GitHubStrategy = require('passport-github').Strategy
 const GitLabStrategy = require('passport-gitlab2').Strategy
@@ -14,15 +14,15 @@ const GitLabStrategy = require('passport-gitlab2').Strategy
 // De esta manera, mantenemos el código separado en varios archivos
 // logrando que sea más manejable.
 
-module.exports = function (passport) {
+module.exports = function(passport) {
 
     // Serializes the user to store it in the session
-    passport.serializeUser(function (user, done) {
+    passport.serializeUser(function(user, done) {
         done(null, user);
     });
 
     // Deserialize the stored user object in the session to use it
-    passport.deserializeUser(function (obj, done) {
+    passport.deserializeUser(function(obj, done) {
         done(null, obj);
     });
 
@@ -31,15 +31,13 @@ module.exports = function (passport) {
     =               LOCAL STRAGEGY                =
     =============================================*/
     passport.use(new LocalStrategy(
-        async function (username, password, done) {
+        async function(username, password, done) {
             try {
-                let match
-                let data = await user.getUserByUsername(username)
+                let match = await user.logIn(username, password)
 
-                if (data) match = await bcrypt.compare(password, data.auth.password)
-                if (match) return done(null, data)
+                if (match) return done(null, match)
+                else return done(null, false)
 
-                return done(null, false)
             } catch (error) {
                 console.log('cannot authenticate :  ', error)
                 return done(error)
@@ -56,7 +54,7 @@ module.exports = function (passport) {
             clientSecret: process.env.GITHUB_CLIENT_SECRET,
             callbackURL: "/auth/github/callback"
         },
-        async function (accessToken, refreshToken, profile, cb) {
+        async function(accessToken, refreshToken, profile, cb) {
 
             try {
 
@@ -101,7 +99,7 @@ module.exports = function (passport) {
             clientSecret: process.env.GITLAB_CLIENT_SECRET,
             callbackURL: "/auth/gitlab/callback"
         },
-        async function (accessToken, refreshToken, profile, cb) {
+        async function(accessToken, refreshToken, profile, cb) {
 
             try {
 

@@ -1,6 +1,6 @@
 const passport = require('passport')
 const LocalStrategy = require('passport-local').Strategy
-const bcrypt = require('bcryptjs')
+const bcrypt = require('bcrypt')
 
 const {
     user
@@ -14,17 +14,17 @@ module.exports = (app) => {
     /*=============================================
     =                LOCAL STRATEGY              =
     =============================================*/
-    
+
     console.log('configuring weas')
 
     passport.use(new LocalStrategy({
         usernameField: 'username'
-    }, async (username, password, done) => {
+    }, async(username, password, done) => {
         console.log('executing local strategy')
         try {
 
             let match
-            let data = await user.getUserByUsername(username)
+            let data = await user.getUserBy('username', username)
 
             if (data) match = await bcrypt.compare(password, data.auth.password)
             if (match) return done(null, data)

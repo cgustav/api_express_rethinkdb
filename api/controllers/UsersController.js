@@ -11,52 +11,55 @@ const {
 
 const user_controller = {
 
-    list: async (req, res) => {
-        //let data = await user.run() //deprecated
+    list: async(req, res) => {
         let data = await user.getAllView()
 
-        res.json(data).status(200)
+        return res.status(200).json(data)
     },
 
-    search: async (req, res) => {
+    search: async(req, res) => {
+
         let username = req.param('username')
-        let data = await user.getView(username)
+        try {
 
-        return res.send(data).status(200)
+            let data = await user.getView(username)
+
+            if (!data) return res.send(404)
+            else return res.status(200).send(data)
+
+        } catch (error) {
+            //console.log('controller ERROR: ', error)
+            res.status(500).send("Internal Error")
+        }
     },
 
-    create: async (req, res) => {
+    create: async(req, res) => {
+        try {
 
-        let email = req.body.email;
-        let name = req.body.name;
-        let username = req.body.username;
-        let password = req.body.password;
 
-        if (isEmpty(email, name, username, password)) return res.send("Empty fields!").status(400)
+            let email = req.body.email;
+            let name = req.body.name;
+            let username = req.body.username;
+            let password = req.body.password;
 
-        let _user = {
-            email,
-            name,
-            username,
-            auth: {
-                password
+            if (isEmpty(email, name, username, password)) return res.send("Empty fields!").status(400)
+
+            let _user = {
+                email,
+                name,
+                username,
+                auth: {
+                    password
+                },
             }
-        }
 
-        let data = await user.filter({
-            username: _user.username
-        })
-        console.log('imprimiendo data: ', data)
-        if (isEmpty(data)) {
-            data = await user.filter({
-                email: _user.email
-            })
-        } else return res.send('ERROR: Existing username!').status(400)
+            let data = await user.getUserBy('username', username);
 
-        console.log('imprimiendo data 2 : ', data)
+            if (data) return res.status(400).send('ERROR: Existing username!')
+            else data = await user.getUserBy('email', email);
 
-        if (isEmpty(data)) {
-            _user.auth.password = await hashThis(password)
+            if (data) return res.status(400).send('ERROR: Existing email!')
+                //_user.auth.password = await hashThis(password)
 
             let created_user = await new user(_user).save()
 
@@ -65,11 +68,15 @@ const user_controller = {
                 content: created_user
             }).status(200)
 
-        } else return res.send('ERROR: Existing email!').status(400)
+
+        } catch (error) {
+            console.log(error)
+            return res.sendStatus(500)
+        }
 
     },
 
-    update: async (req, res) => {
+    update: async(req, res) => {
 
     }
 

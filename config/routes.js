@@ -19,19 +19,18 @@ module.exports = app => {
     /*=============================================
     =                   LOGIN                     =
     =============================================*/
-    router.get('/login', auth.serve)
-    router.post('/login', policy.complexHandler('local', '/forbidden', '/success'))
+    router.get('/login', auth.login)
+    router.post('/login', policy.complexHandler('local', '/login', '/success'))
 
     router.get('/success', auth.success)
     router.get('/forbidden', auth.forbidden)
-
 
     /*=============================================
     =                   OAUTH                     =
     =============================================*/
     app.get('/auth/github', policy.apply('github'))
     app.get('/auth/github/callback', policy.complexHandler('github', '/forbidden', '/success'))
-   
+
     app.get('/auth/gitlab', policy.apply('gitlab'))
     app.get('/auth/gitlab/callback', policy.complexHandler('gitlab', '/forbidden', '/success'))
 
