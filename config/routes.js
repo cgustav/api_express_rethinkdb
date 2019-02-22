@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const passport = require('passport'); //deprecated
 //controllers
 const users = require('../api/controllers/UsersController');
 const auth = require('../api/controllers/AuthController');
 const home = require('../api/controllers/HomeController');
 //helpers
-const policy = require('../api/helpers/policy');
+const policy = require('../api/policies/policy');
+const isAuth = require('../api/policies/isAuth')
 
 module.exports = app => {
 
@@ -19,11 +19,8 @@ module.exports = app => {
     /*=============================================
     =                   LOGIN                     =
     =============================================*/
-    router.get('/login', auth.login)
-    router.post('/login', policy.complexHandler('local', '/login', '/success'))
-
-    router.get('/success', auth.success)
-    router.get('/forbidden', auth.forbidden)
+    router.get('/login', )
+    router.post('/login', auth.login)
 
     /*=============================================
     =                   OAUTH                     =
@@ -37,7 +34,7 @@ module.exports = app => {
     /*=============================================
     =                   USERS                     =
     =============================================*/
-    router.get('/users/', users.list)
+    router.get('/users/', isAuth, users.list)
     router.get('/users?username=:username', users.search)
     router.get('/users/:username', users.search)
     router.post('/users/', users.create)

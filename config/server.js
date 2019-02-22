@@ -32,6 +32,7 @@ module.exports = app => {
     =                     AUTH                    =
      =============================================*/
     const passport = require('passport')
+    const expressJwt = require('express-jwt')
 
     //const passportConfig = require('./passport')
     //passportConfig(app)
@@ -39,6 +40,7 @@ module.exports = app => {
     require('./passport')(passport)
     app.use(passport.initialize())
     app.use(passport.session())
+        //app.use(expressJwt({ secret: jwtClave }).unless({ path: ["/login"] }))
 
     /*=============================================
     =                 ROUTING                     =

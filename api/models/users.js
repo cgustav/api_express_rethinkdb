@@ -26,18 +26,14 @@ user_schema.init = function(model) {
     model.hasMany(models.identities, 'identities', 'id', 'user_id')
 
     model.pre('save', async function(next) {
-        this.auth.password = await bcrypt.hash(this.auth.password, 10)
+        if (!this.auth.password) next()
+        else this.auth.password = await bcrypt.hash(this.auth.password, 10)
         next()
     })
 
     // model.define('comparePassword', async function(password) {
     //     return await bcrypt.compare(password, this.auth.password);
     // })
-
-    model.define("wea", function() {
-        console.log("iswea")
-    });
-
 
 }
 
@@ -46,7 +42,6 @@ user_schema.logIn = async function(username, password) {
 
     let _user = await this.getUserBy('username', username)
     if (!_user) return null
-
     let match = await bcrypt.compare(password, _user.auth.password)
 
     if (match) {

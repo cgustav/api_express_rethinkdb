@@ -2,10 +2,6 @@ const isEmpty = require('../../lib/queryValidator')
 const findOrCreate = require('../../lib/findOrCreate')
 
 const {
-    hashThis
-} = require('../../lib/hash_util')
-
-const {
     user
 } = require('../models/index')
 

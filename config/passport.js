@@ -30,7 +30,7 @@ module.exports = function(passport) {
     /*=============================================
     =               LOCAL STRAGEGY                =
     =============================================*/
-    passport.use(new LocalStrategy(
+    passport.use('local', new LocalStrategy(
         async function(username, password, done) {
             try {
                 let match = await user.logIn(username, password)

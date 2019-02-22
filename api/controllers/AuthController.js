@@ -1,5 +1,6 @@
 const passport = require('passport')
-const auth = require('../helpers/jwt');
+const auth = require('../helpers/jwtSign');
+const jwtSign = require('../helpers/jwtSign')
 
 const {
     user
@@ -16,30 +17,39 @@ const auth_controller = {
     // =====================================
 
     login: async(req, res) => {
-        passport.authenticate('local', function(err, user, info) {
-            console.log("en el login")
-            try {
 
+        return passport.authenticate('local', {
+            session: false
+        }, (err, user, info) => {
+            try {
 
                 if ((err) || (!user)) return res.status(400).send({
                     message: info.message,
                     user
                 });
 
+                let options = {
+                    issuer: 'My API info',
+                    subject: 'me@example.com',
+                    audience: 'http://this.api'
+                }
 
-                //   let response = {
-                //     user,
-                //     token
-                //   }
+                let token = jwtSign(user, options)
+
+                if (token.error) return res.serverError(token.error)
+
+                let response = {
+                    user,
+                    token
+                }
 
                 return res.send(response).status(200) //OK
+
             } catch (error) {
-                console.log(error)
-                return res.send("OUCH").status(500)
+                //console.log(error)
+                return res.status(500).send(error) //TODO improve responses
             }
-
         })(req, res)
-
     },
 
     // =====================================

@@ -14,7 +14,6 @@ const ready = () => think.dbReady()
     })
     .catch(err => {
         console.log('Ups: ', err)
-        return res.status(500)
     })
 
 const r = think.r
