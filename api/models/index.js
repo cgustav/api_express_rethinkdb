@@ -1,4 +1,5 @@
-
 module.exports = {
-    user: require('./users')
+    user: require('./users'),
+    identities: require('./identities')
+
 }

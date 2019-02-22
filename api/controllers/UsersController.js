@@ -1,4 +1,5 @@
 const isEmpty = require('../../lib/queryValidator')
+const findOrCreate = require('../../lib/findOrCreate')
 
 const {
     user
@@ -6,59 +7,72 @@ const {
 
 const user_controller = {
 
-    list: async (req, res) => {
-        const data = await user.run()
+    list: async(req, res) => {
+        let data = await user.getAllView()
 
-        res.json(data).status(200)
+        return res.status(200).json(data)
     },
 
-    search: async (req, res) => {
-        const username = req.param('username')
-        const data = await user.filter({
-            username
-        })
+    search: async(req, res) => {
 
-        res.json(data).status(200)
-    },
+        let username = req.param('username')
+        try {
 
-    create: async (req, res) => {
+            let data = await user.getView(username)
 
-        let email = req.body.email;
-        let name = req.body.name;
-        let username = req.body.username;
-        let password = req.body.password;
+            if (!data) return res.send(404)
+            else return res.status(200).send(data)
 
-        if (isEmpty(email, name, username, password)) return res.send("Empty fields!").status(400)
-
-        let _user = {
-            email,
-            name,
-            username,
-            password
+        } catch (error) {
+            //console.log('controller ERROR: ', error)
+            res.status(500).send("Internal Error")
         }
+    },
 
-        let data = await user.filter({
-            username: _user.username
-        })
-
-        if (isEmpty(data[0])) {
-            data = await user.filter({
-                email: _user.email
-            })
-        } else return res.send('ERROR: Existing username!').status(400)
+    create: async(req, res) => {
+        try {
 
 
-        if (isEmpty(data[0])) {
+            let email = req.body.email;
+            let name = req.body.name;
+            let username = req.body.username;
+            let password = req.body.password;
+
+            if (isEmpty(email, name, username, password)) return res.send("Empty fields!").status(400)
+
+            let _user = {
+                email,
+                name,
+                username,
+                auth: {
+                    password
+                },
+            }
+
+            let data = await user.getUserBy('username', username);
+
+            if (data) return res.status(400).send('ERROR: Existing username!')
+            else data = await user.getUserBy('email', email);
+
+            if (data) return res.status(400).send('ERROR: Existing email!')
+                //_user.auth.password = await hashThis(password)
 
             let created_user = await new user(_user).save()
-            console.log('[log] user created')
 
             return res.json({
                 title: 'User created',
                 content: created_user
             }).status(200)
 
-        } else return res.send('ERROR: Existing email!').status(400)
+
+        } catch (error) {
+            console.log(error)
+            return res.sendStatus(500)
+        }
+
+    },
+
+    update: async(req, res) => {
 
     }
 

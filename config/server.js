@@ -16,15 +16,31 @@ module.exports = app => {
     =                 MIDDLEWARE                 =
     =============================================*/
     const logger = require('morgan')
-    const body_parser = require('body-parser')
+    const bodyParser = require('body-parser')
+    const cookieParser = require('cookie-parser');
+    const methodOverride = require('method-override')
 
     app.use(logger('dev'))
-    app.use(body_parser.urlencoded({
+    app.use(bodyParser.urlencoded({
         extended: true
-    }));
-    app.use(body_parser.json());
+    }))
+    app.use(bodyParser.json())
+    app.use(cookieParser())
+    app.use(methodOverride())
 
+    /*=============================================
+    =                     AUTH                    =
+     =============================================*/
+    const passport = require('passport')
+    const expressJwt = require('express-jwt')
 
+    //const passportConfig = require('./passport')
+    //passportConfig(app)
+
+    require('./passport')(passport)
+    app.use(passport.initialize())
+    app.use(passport.session())
+        //app.use(expressJwt({ secret: jwtClave }).unless({ path: ["/login"] }))
 
     /*=============================================
     =                 ROUTING                     =

@@ -1,26 +1,37 @@
-//const thinker = require('./thinker')
 const find_or_create = require('../lib/findOrCreate')
 
 module.exports = {
 
-    init: async () => {
+    init: async() => {
         const models = require('../api/models/index')
 
-        let user = await find_or_create(models.user, {
-            username: 'dropex',
+        /*=============================================
+        =               RELATIONS                     =
+        =============================================*/
+        models.identities.belongsTo(models.user, 'user', 'user_id', 'id')
+
+
+
+        /*=============================================
+        =               DUMP DATA                     =
+        =============================================*/
+        let password = "1234"
+
+        const USER = await find_or_create(models.user, {
+            username: 'test',
             name: 'Pedro',
-            email: 'pedro@pedro.cl',
+            email: 'test@test.cl',
             auth: {
-                password: '1234'
+                password
             }
         })
 
-        let user1 = await find_or_create(models.user, {
-            username: 'cgustav',
-            name: 'Eduardo',
-            email: 'edo@edo.cl',
+        const USER1 = await find_or_create(models.user, {
+            username: 'admin',
+            name: 'admin',
+            email: 'admin@root.cl',
             auth: {
-                password: '1234'
+                password
             }
         })
 
