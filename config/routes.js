@@ -15,7 +15,6 @@ module.exports = app => {
     =============================================*/
     router.get('/', home.home)
 
-
     /*=============================================
     =                   LOGIN                     =
     =============================================*/
@@ -26,10 +25,10 @@ module.exports = app => {
     =                   OAUTH                     =
     =============================================*/
     app.get('/auth/github', policy.apply('github'))
-    app.get('/auth/github/callback', /*policy.complexHandler('github', '/forbidden', '/success')*/ )
+    app.get('/auth/github/callback', auth.gitHubCB)
 
     app.get('/auth/gitlab', policy.apply('gitlab'))
-    app.get('/auth/gitlab/callback', policy.complexHandler('gitlab', '/forbidden', '/success'))
+    app.get('/auth/gitlab/callback', auth.gitLabCB)
 
     /*=============================================
     =                   USERS                     =

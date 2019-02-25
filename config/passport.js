@@ -65,14 +65,14 @@ module.exports = function(passport) {
                 })
 
                 if (identityData[0]) {
-                    let userData = await user.get(identityData.user_id)
+                    let userData = await user.get(identityData[0].user_id)
                     if (userData) return cb(null, userData)
                     else return cb(null, false)
 
                 }
 
                 let _user = await new user({
-                    name: profile.displayName,
+                    displayName: profile.displayName,
                     username: profile.username,
                     email: profile.emails[0].value,
                     photo: profile.photos[0].value,
@@ -117,16 +117,16 @@ module.exports = function(passport) {
                 })
 
                 if (identityData[0]) {
-                    let userData = await user.get(identityData.user_id)
+                    let userData = await user.get(identityData[0].user_id)
                     if (userData) return cb(null, userData)
                     else return cb(null, false)
 
                 }
 
-                if (data[0]) return cb(null, data)
+                //if (data[0]) return cb(null, data)
 
                 let _user = await new user({
-                    name: profile.displayName,
+                    displayName: profile.displayName,
                     username: profile.username,
                     email: profile.emails[0].value,
                     photo: profile.avatarUrl,

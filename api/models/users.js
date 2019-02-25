@@ -30,9 +30,11 @@ user_schema.init = function (model) {
 }
 
 user_schema.pre('save', async function (next) {
-    if (!this.auth.password) next()
-    else this.auth.password = await bcrypt.hash(this.auth.password, 10)
-    next()
+
+    if (this.auth){
+        this.auth.password = await bcrypt.hash(this.auth.password, 10)
+        return next()
+    } else return next()
 })
 
 user_schema.update = async function (id, payload) {

@@ -6,7 +6,6 @@ module.exports = (payload, options) => {
 
     try {
 
-        //TODO verify if option is an object
         payload = JSON.parse(JSON.stringify(payload))
         options = JSON.parse(JSON.stringify(options))
         options.expiresIn = "50m"

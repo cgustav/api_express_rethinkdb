@@ -1,5 +1,4 @@
 const passport = require('passport')
-const auth = require('../helpers/jwtSign');
 const jwtSign = require('../helpers/jwtSign')
 
 const {
@@ -16,63 +15,64 @@ const auth_controller = {
     // LOGIN ===============================
     // =====================================
 
-    login: async(req, res) => {
+    login: async (req, res) => {
+        passportHandler('local', req, res)
 
-        return passport.authenticate('local', {
-            session: false
-        }, (err, user, info) => {
-            try {
-
-                if ((err) || (!user)) return res.status(400).send({
-                    message: info.message,
-                    user
-                });
-
-                let options = {
-                    issuer: 'My API info',
-                    subject: 'me@example.com',
-                    audience: 'http://this.api'
-                }
-
-                let token = jwtSign(user, options)
-
-                if (token.error) return res.serverError(token.error)
-
-                let response = {
-                    user,
-                    token
-                }
-
-                return res.send(response).status(200) //OK
-
-            } catch (error) {
-                //console.log(error)
-                return res.status(500).send(error) //TODO improve responses
-            }
-        })(req, res)
     },
 
     // =====================================
     // GITHUB OAUTH ========================
     // =====================================
-    github: (req, res) => {
 
-
-    },
-    githubCB: (req, res) => {
-        return res.send("All Ok").status(200)
+    gitHubCB: (req, res) => {
+        passportHandler('github', req, res)
 
     },
-    forbidden: async(req, res) => {
 
-        return res.sendStatus(403)
+    // =====================================
+    // GITLAB OAUTH ========================
+    // =====================================
+
+    gitLabCB: (req, res) => {
+        passportHandler('gitlab', req, res)
 
     },
-    success: async(req, res) => {
 
-        return res.send("authenticated!").status(200)
 
-    }
+}
 
+function passportHandler(strategyName, req, res) {
+    return passport.authenticate(strategyName, {
+        session: false
+    }, (err, user, info) => {
+        try {
+
+            if ((err) || (!user)) return res.status(400).send({
+                message: info.message,
+                user
+            });
+
+            let options = {
+                issuer: 'My API info',
+                subject: 'me@example.com',
+                audience: 'http://this.api'
+            }
+
+            let token = jwtSign(user, options)
+
+            if (token.error) return res.serverError(token.error)
+
+            let response = {
+                user,
+                token
+            }
+
+            return res.send(response).status(200) //OK
+
+        } catch (error) {
+            //console.log(error)
+            return res.status(500).send(error) //TODO improve responses
+        }
+    })(req, res)
 }
 module.exports = auth_controller;

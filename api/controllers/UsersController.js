@@ -1,5 +1,4 @@
 const isEmpty = require('../../lib/queryValidator')
-//const findOrCreate = require('../../lib/findOrCreate')
 const {
     r,
     think
@@ -111,16 +110,17 @@ const user_controller = {
 
             console.log('El container es :', container)
 
-            container.lastUpdate = new Date()
+            container.lastUpdateAt = new Date()
 
             await user.update(data.id, container)
 
             //let refreshToken = 
             let response = {
-                message: "user updated"
+                message: "user updated",
+                at: new Date()
             }
 
-            return res.status(200).send("todo pulento")
+            return res.status(200).send(response)
 
 
         } catch (error) {
