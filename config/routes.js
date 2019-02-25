@@ -38,6 +38,7 @@ module.exports = app => {
     router.get('/users/:username', users.search)
     router.post('/users/', users.create)
     router.patch('/users/:username', isAuth, users.update)
+    router.delete('/users/:username', isAuth, users.delete)
 
     app.use(router)
 }

@@ -16,6 +16,7 @@ const user_schema = think.createModel(
         auth: {
             password: type.string(),
         },
+        isActive: type.boolean().default(false),
         createdAt: type.date().default(r.now())
     }
 );

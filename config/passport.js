@@ -4,7 +4,7 @@ let {
 } = require('../api/models/index');
 const dotenv = require('dotenv').config()
 const bcrypt = require('bcrypt')
-    //strategy
+//strategy
 const LocalStrategy = require('passport-local').Strategy
 const GitHubStrategy = require('passport-github').Strategy
 const GitLabStrategy = require('passport-gitlab2').Strategy
@@ -14,15 +14,15 @@ const GitLabStrategy = require('passport-gitlab2').Strategy
 // De esta manera, mantenemos el código separado en varios archivos
 // logrando que sea más manejable.
 
-module.exports = function(passport) {
+module.exports = function (passport) {
 
     // Serializes the user to store it in the session
-    passport.serializeUser(function(user, done) {
+    passport.serializeUser(function (user, done) {
         done(null, user);
     });
 
     // Deserialize the stored user object in the session to use it
-    passport.deserializeUser(function(obj, done) {
+    passport.deserializeUser(function (obj, done) {
         done(null, obj);
     });
 
@@ -31,7 +31,7 @@ module.exports = function(passport) {
     =               LOCAL STRAGEGY                =
     =============================================*/
     passport.use('local', new LocalStrategy(
-        async function(username, password, done) {
+        async function (username, password, done) {
             try {
                 let match = await user.logIn(username, password)
 
@@ -55,7 +55,7 @@ module.exports = function(passport) {
             clientSecret: process.env.GITHUB_CLIENT_SECRET,
             callbackURL: process.env.GITHUB_CLIENT_CB || GITHUB_CB
         },
-        async function(accessToken, refreshToken, profile, cb) {
+        async function (accessToken, refreshToken, profile, cb) {
 
             try {
 
@@ -76,7 +76,8 @@ module.exports = function(passport) {
                     username: profile.username,
                     email: profile.emails[0].value,
                     photo: profile.photos[0].value,
-                    location: profile._json.location
+                    location: profile._json.location,
+                    isVerified: false
                 }).save()
 
                 let _identity = await new identities({
@@ -107,7 +108,7 @@ module.exports = function(passport) {
             clientSecret: process.env.GITLAB_CLIENT_SECRET,
             callbackURL: process.env.GITHUB_CLIENT_CB || GITLAB_CB
         },
-        async function(accessToken, refreshToken, profile, cb) {
+        async function (accessToken, refreshToken, profile, cb) {
 
             try {
 
@@ -130,7 +131,8 @@ module.exports = function(passport) {
                     username: profile.username,
                     email: profile.emails[0].value,
                     photo: profile.avatarUrl,
-                    location: profile._json.location
+                    location: profile._json.location,
+                    isVerified: false
                 }).save()
 
                 let _identity = await new identities({

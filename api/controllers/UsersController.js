@@ -50,6 +50,7 @@ const user_controller = {
                 auth: {
                     password
                 },
+                isVerified: false
             }
 
             let data = await user.filter(r.row('username').eq(username)
@@ -110,7 +111,8 @@ const user_controller = {
 
             console.log('El container es :', container)
 
-            container.lastUpdateAt = new Date()
+            container.lastUpdateAt = new Date();
+            container.isVerified = false;
 
             await user.update(data.id, container)
 
@@ -127,6 +129,37 @@ const user_controller = {
             console.log(error)
             return res.sendStatus(500)
         }
+
+    },
+
+    delete: async (req, res) => {
+
+        let credentials = req.auth_user
+        let username = req.params.username
+
+        let data = await user.getUserBy('username', username)
+
+        if (!data) return res.sendStatus(404) //User Not found
+
+        if (credentials.username != username) {
+            if (!data.isDeveloper) return res.sendStatus(403) //Forbidden
+        }
+
+        let container = {
+            isActive: false,
+            lastUpdateAt: new Date()
+        }
+
+        await user.update(data.id, container)
+
+        //let refreshToken = 
+        let response = {
+            message: "this user account is now inactive",
+            at: new Date()
+        }
+
+        return res.status(200).send(response)
+
     }
 
 
