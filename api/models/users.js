@@ -16,7 +16,9 @@ const user_schema = think.createModel(
         auth: {
             password: type.string(),
         },
-        isActive: type.boolean().default(false),
+        isActive: type.boolean().default(true), //auto-disabling
+        isVerified: type.boolean().default(false), //email verif
+        isDisabled: type.boolean().default(false), //BANNED
         createdAt: type.date().default(r.now())
     }
 );
@@ -32,7 +34,7 @@ user_schema.init = function (model) {
 
 user_schema.pre('save', async function (next) {
 
-    if (this.auth){
+    if (this.auth) {
         this.auth.password = await bcrypt.hash(this.auth.password, 10)
         return next()
     } else return next()
@@ -54,6 +56,8 @@ user_schema.logIn = async function (username, password) {
 
     let _user = await this.getUserBy('username', username)
     if (!_user) return null
+    if (_user.isDisabled) return null
+
     let match = await bcrypt.compare(password, _user.auth.password)
 
     if (match) {
@@ -67,7 +71,10 @@ user_schema.logIn = async function (username, password) {
 user_schema.getView = async (username) => {
     try {
 
-        return await r.db('ozen_db').table('users').filter(r.row('username').eq(username))
+        return await r.db('ozen_db').table('users')
+            .filter(r.row('username').eq(username)
+                .and(r.row('isActive').eq(true))
+                .and(r.row('isDisabled').eq(false)))
             .nth(0)
             .without('auth')
             .merge(function (user) {
@@ -82,7 +89,7 @@ user_schema.getView = async (username) => {
             });
 
     } catch (error) {
-        console.log(error)
+        //console.log(error)
         if (error.msg === "Index out of bounds: 0") return null;
         else throw new Error("Internal DB ERROR."); // or return error
     }
@@ -93,6 +100,8 @@ user_schema.getAllView = async () => {
     try {
 
         return await r.db('ozen_db').table('users')
+            .filter(r.row('isActive').eq(true)
+                .and(r.row('isDisabled').eq(false)))
             .without('auth')
             .merge(function (user) {
                 return {

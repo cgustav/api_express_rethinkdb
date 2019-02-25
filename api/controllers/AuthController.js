@@ -44,13 +44,25 @@ const auth_controller = {
 function passportHandler(strategyName, req, res) {
     return passport.authenticate(strategyName, {
         session: false
-    }, (err, user, info) => {
+    }, async(err, _user, info) => {
         try {
 
-            if ((err) || (!user)) return res.status(400).send({
+            if ((err) || (!_user)) return res.status(400).send({
                 message: info.message,
                 user
-            });
+            }); //BAD REQUEST
+
+            if (_user.isDisabled) return res.sendStatus(404) //Banned
+
+            //TODO modifications
+            if (!_user.isActive) {
+                await user.update(_user.id,{
+                    isActive: true,
+                    lastUpdateAt: new Date()
+                })
+                _user.isActive = true
+                console.log(`user turned to active: ${_user.isActive}`)
+            }
 
             let options = {
                 issuer: 'My API info',
@@ -58,20 +70,19 @@ function passportHandler(strategyName, req, res) {
                 audience: 'http://this.api'
             }
 
-            let token = jwtSign(user, options)
-
-            if (token.error) return res.serverError(token.error)
+            let token = jwtSign(_user, options)
 
             let response = {
-                user,
+                user:_user,
                 token
             }
 
             return res.send(response).status(200) //OK
 
         } catch (error) {
-            //console.log(error)
-            return res.status(500).send(error) //TODO improve responses
+            console.log(error)
+            //if(error.name) console.log(error.name)
+            return res.sendStatus(500) //TODO improve responses
         }
     })(req, res)
 }

@@ -36,11 +36,15 @@ module.exports = function (passport) {
                 let match = await user.logIn(username, password)
 
                 if (match) return done(null, match)
-                else return done(null, false)
+                else return done(null, false, {
+                    message: 'invalid username or password'
+                })
 
             } catch (error) {
                 console.log('cannot authenticate :  ', error)
-                return done(error)
+                return done(error, false, {
+                    message: 'internal error'
+                })
             }
         }
     ));
@@ -77,7 +81,7 @@ module.exports = function (passport) {
                     email: profile.emails[0].value,
                     photo: profile.photos[0].value,
                     location: profile._json.location,
-                    isVerified: false
+                    isVerified: true
                 }).save()
 
                 let _identity = await new identities({
@@ -132,7 +136,7 @@ module.exports = function (passport) {
                     email: profile.emails[0].value,
                     photo: profile.avatarUrl,
                     location: profile._json.location,
-                    isVerified: false
+                    isVerified: true
                 }).save()
 
                 let _identity = await new identities({

@@ -49,8 +49,7 @@ const user_controller = {
                 username,
                 auth: {
                     password
-                },
-                isVerified: false
+                }
             }
 
             let data = await user.filter(r.row('username').eq(username)
@@ -88,6 +87,8 @@ const user_controller = {
             if (credentials.username != username) {
                 if (!data.isDeveloper) return res.sendStatus(403) //Forbidden
             }
+
+            if(data.isDisabled || !data.isActive) return res.sendStatus(404) //TODO not found
 
             let body = req.body
             let container = require('../../lib/fieldParser')(body, res)
@@ -145,6 +146,7 @@ const user_controller = {
             if (!data.isDeveloper) return res.sendStatus(403) //Forbidden
         }
 
+        if(data.isDisabled || !data.isActive) return res.sendStatus(404) //TODO conflict (409)
         let container = {
             isActive: false,
             lastUpdateAt: new Date()
