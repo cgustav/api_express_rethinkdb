@@ -33,7 +33,7 @@ node_modules
 bower_components
 .grunt
 .sonarlint
-.env
+#.env
 
 # secret
-*.key
+#*.key

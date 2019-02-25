@@ -49,21 +49,27 @@ module.exports = function(passport) {
     /*=============================================
     =               GITHUB STRAGEGY               =
     =============================================*/
+    const GITHUB_CB = "/auth/github/callback"
     passport.use(new GitHubStrategy({
             clientID: process.env.GITHUB_CLIENT_ID,
             clientSecret: process.env.GITHUB_CLIENT_SECRET,
-            callbackURL: "/auth/github/callback"
+            callbackURL: process.env.GITHUB_CLIENT_CB || GITHUB_CB
         },
         async function(accessToken, refreshToken, profile, cb) {
 
             try {
 
-                let data = await identities.filter({
+                let identityData = await identities.filter({
                     provider: profile.provider,
                     extern_uid: profile.id
                 })
 
-                if (data[0]) return cb(null, data)
+                if (identityData[0]) {
+                    let userData = await user.get(identityData.user_id)
+                    if (userData) return cb(null, userData)
+                    else return cb(null, false)
+
+                }
 
                 let _user = await new user({
                     name: profile.displayName,
@@ -94,19 +100,28 @@ module.exports = function(passport) {
     /*=============================================
     =               GITLAB STRAGEGY               =
     =============================================*/
+    const GITLAB_CB = "/auth/gitlab/callback"
+
     passport.use(new GitLabStrategy({
             clientID: process.env.GITLAB_CLIENT_ID,
             clientSecret: process.env.GITLAB_CLIENT_SECRET,
-            callbackURL: "/auth/gitlab/callback"
+            callbackURL: process.env.GITHUB_CLIENT_CB || GITLAB_CB
         },
         async function(accessToken, refreshToken, profile, cb) {
 
             try {
 
-                let data = await identities.filter({
+                let identityData = await identities.filter({
                     provider: profile.provider,
                     extern_uid: profile.id
                 })
+
+                if (identityData[0]) {
+                    let userData = await user.get(identityData.user_id)
+                    if (userData) return cb(null, userData)
+                    else return cb(null, false)
+
+                }
 
                 if (data[0]) return cb(null, data)
 

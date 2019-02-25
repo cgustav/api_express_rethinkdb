@@ -22,20 +22,22 @@ const user_schema = think.createModel(
 
 
 user_schema.init = function(model) {
+    console.log('kongchetumare')
+    model.hasMany(model.identities, 'identities', 'id', 'user_id')
 
-    model.hasMany(models.identities, 'identities', 'id', 'user_id')
 
-    model.pre('save', async function(next) {
-        if (!this.auth.password) next()
-        else this.auth.password = await bcrypt.hash(this.auth.password, 10)
-        next()
-    })
 
     // model.define('comparePassword', async function(password) {
     //     return await bcrypt.compare(password, this.auth.password);
     // })
 
 }
+
+user_schema.pre('save', async function(next) {
+    if (!this.auth.password) next()
+    else this.auth.password = await bcrypt.hash(this.auth.password, 10)
+    next()
+})
 
 //returns user object without auth
 user_schema.logIn = async function(username, password) {

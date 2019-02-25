@@ -26,7 +26,7 @@ module.exports = app => {
     =                   OAUTH                     =
     =============================================*/
     app.get('/auth/github', policy.apply('github'))
-    app.get('/auth/github/callback', policy.complexHandler('github', '/forbidden', '/success'))
+    app.get('/auth/github/callback', /*policy.complexHandler('github', '/forbidden', '/success')*/ )
 
     app.get('/auth/gitlab', policy.apply('gitlab'))
     app.get('/auth/gitlab/callback', policy.complexHandler('gitlab', '/forbidden', '/success'))
@@ -38,7 +38,7 @@ module.exports = app => {
     router.get('/users?username=:username', users.search)
     router.get('/users/:username', users.search)
     router.post('/users/', users.create)
-    router.patch('/users/:username', users.update)
+    router.patch('/users/:username', isAuth, users.update)
 
     app.use(router)
 }
