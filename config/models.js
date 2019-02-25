@@ -9,14 +9,15 @@ module.exports = {
         =               RELATIONS                     =
         =============================================*/
         models.identities.belongsTo(models.user, 'user', 'user_id', 'id')
-
+        models.user.belongsTo(models.identities, 'identities', 'id', 'user_id')
 
 
         /*=============================================
         =               DUMP DATA                     =
         =============================================*/
         let password = "1234"
-
+        
+        /*
         const USER = await find_or_create(models.user, {
             username: 'test',
             name: 'Pedro',
@@ -34,6 +35,6 @@ module.exports = {
                 password
             }
         })
-
+        */
     }
 }

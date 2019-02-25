@@ -21,26 +21,33 @@ const user_schema = think.createModel(
 );
 
 
-user_schema.init = function(model) {
-    console.log('kongchetumare')
-    model.hasMany(model.identities, 'identities', 'id', 'user_id')
-
-
+user_schema.init = function (model) {
+    //model.hasMany(model.identities, 'identities', 'id', 'user_id')
 
     // model.define('comparePassword', async function(password) {
     //     return await bcrypt.compare(password, this.auth.password);
     // })
-
 }
 
-user_schema.pre('save', async function(next) {
+user_schema.pre('save', async function (next) {
     if (!this.auth.password) next()
     else this.auth.password = await bcrypt.hash(this.auth.password, 10)
     next()
 })
 
+user_schema.update = async function (id, payload) {
+    try {
+
+        payload = JSON.parse(JSON.stringify(payload))
+        return await r.db('ozen_db').table('users').get(id).update(payload)
+    } catch (error) {
+        console.log(error)
+        return null
+    }
+}
+
 //returns user object without auth
-user_schema.logIn = async function(username, password) {
+user_schema.logIn = async function (username, password) {
 
     let _user = await this.getUserBy('username', username)
     if (!_user) return null
@@ -53,13 +60,14 @@ user_schema.logIn = async function(username, password) {
     } else return null
 }
 
-user_schema.getView = async(username) => {
+
+user_schema.getView = async (username) => {
     try {
 
         return await r.db('ozen_db').table('users').filter(r.row('username').eq(username))
             .nth(0)
             .without('auth')
-            .merge(function(user) {
+            .merge(function (user) {
                 return {
                     identities: r.db('ozen_db').table('identities')
                         .getAll(user('id'), {
@@ -71,18 +79,19 @@ user_schema.getView = async(username) => {
             });
 
     } catch (error) {
+        console.log(error)
         if (error.msg === "Index out of bounds: 0") return null;
         else throw new Error("Internal DB ERROR."); // or return error
     }
 }
 
-user_schema.getAllView = async() => {
+user_schema.getAllView = async () => {
 
     try {
 
         return await r.db('ozen_db').table('users')
             .without('auth')
-            .merge(function(user) {
+            .merge(function (user) {
                 return {
                     identities: r.db('ozen_db').table('identities')
                         .getAll(user('id'), {
@@ -98,7 +107,7 @@ user_schema.getAllView = async() => {
     }
 }
 
-user_schema.getUserBy = async(criteria, value) => {
+user_schema.getUserBy = async (criteria, value) => {
     try {
         if (criteria === "password") return null
         else return await r.db('ozen_db').table('users').filter(r.row(criteria).eq(value)).nth(0);
@@ -115,7 +124,7 @@ user_schema.docAddListener('saved', (doc) => {
     console.log('[log] user created: (', doc.username, ')', '(', doc.id, ')')
 });
 
-user_schema.addListener('retrieved', function(doc) {
+user_schema.addListener('retrieved', function (doc) {
     doc.retrieved = new Date();
 });
 

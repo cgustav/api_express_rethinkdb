@@ -1,5 +1,9 @@
 const isEmpty = require('../../lib/queryValidator')
-const findOrCreate = require('../../lib/findOrCreate')
+//const findOrCreate = require('../../lib/findOrCreate')
+const {
+    r,
+    think
+} = require('../../config/database');
 
 const {
     user
@@ -7,29 +11,29 @@ const {
 
 const user_controller = {
 
-    list: async(req, res) => {
+    list: async (req, res) => {
         let data = await user.getAllView()
 
         return res.status(200).json(data)
     },
 
-    search: async(req, res) => {
+    search: async (req, res) => {
 
         let username = req.param('username')
         try {
 
             let data = await user.getView(username)
 
-            if (!data) return res.send(404)
-            else return res.status(200).send(data)
+            if (!data) return res.sendStatus(404)
+            else return res.status(200).send(data) //found
 
         } catch (error) {
-            //console.log('controller ERROR: ', error)
+            console.log('controller ERROR: ', error)
             res.status(500).send("Internal Error")
         }
     },
 
-    create: async(req, res) => {
+    create: async (req, res) => {
         try {
 
 
@@ -49,32 +53,82 @@ const user_controller = {
                 },
             }
 
-            let data = await user.getUserBy('username', username);
+            let data = await user.filter(r.row('username').eq(username)
+                .or(r.row('email').eq(email)))
 
-            if (data) return res.status(400).send('ERROR: Existing username!')
-            else data = await user.getUserBy('email', email);
-
-            if (data) return res.status(400).send('ERROR: Existing email!')
-                //_user.auth.password = await hashThis(password)
+            if (data[0])
+                return res.status(409).send('ERROR: Existing username/email!') //conflict
 
             let created_user = await new user(_user).save()
 
-            return res.json({
+            return res.status(201).json({
                 title: 'User created',
                 content: created_user
-            }).status(200)
+            }) //created!
+
+
+        } catch (error) {
+            console.log(error)
+            return res.sendStatus(500) //Internal error
+        }
+
+    },
+
+    update: async (req, res) => {
+        try {
+
+
+            let credentials = req.auth_user
+            let username = req.params.username
+
+            let data = await user.getUserBy('username', username)
+
+            if (!data) return res.sendStatus(404) //Not found
+
+            if (credentials.username != username) {
+                if (!data.isDeveloper) return res.sendStatus(403) //Forbidden
+            }
+
+            let body = req.body
+            let container = require('../../lib/fieldParser')(body, res)
+
+            if (container === null) return; //stop context code 
+            //error responses came from fieldParser function
+
+            let match_user
+            if (container.username) {
+                match_user = await user.getUserBy('username', container.username)
+
+                if (match_user)
+                    return res.status(400).send("input username already exists")
+
+            } else if (container.email) {
+                match_user = await user.getUserBy('email', container.email)
+
+                if (match_user)
+                    return res.status(400).send("input email already exists")
+            }
+
+            console.log('El container es :', container)
+
+            container.lastUpdate = new Date()
+
+            await user.update(data.id, container)
+
+            //let refreshToken = 
+            let response = {
+                message: "user updated"
+            }
+
+            return res.status(200).send("todo pulento")
 
 
         } catch (error) {
             console.log(error)
             return res.sendStatus(500)
         }
-
-    },
-
-    update: async(req, res) => {
-
     }
+
 
 };
 
