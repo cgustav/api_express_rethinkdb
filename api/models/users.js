@@ -13,9 +13,7 @@ const user_schema = think.createModel(
         username: type.string().max(50),
         email: type.string().max(200),
         birthdate: type.date(),
-        auth: {
-            password: type.string(),
-        },
+        password: type.string(),
         isActive: type.boolean().default(true), //auto-disabling
         isVerified: type.boolean().default(false), //email verif
         isDisabled: type.boolean().default(false), //BANNED
@@ -24,7 +22,7 @@ const user_schema = think.createModel(
 );
 
 
-user_schema.init = function (model) {
+user_schema.init = function(model) {
     //model.hasMany(model.identities, 'identities', 'id', 'user_id')
 
     // model.define('comparePassword', async function(password) {
@@ -32,15 +30,15 @@ user_schema.init = function (model) {
     // })
 }
 
-user_schema.pre('save', async function (next) {
+user_schema.pre('save', async function(next) {
 
-    if (this.auth) {
-        this.auth.password = await bcrypt.hash(this.auth.password, 10)
+    if (this.password) {
+        this.password = await bcrypt.hash(this.password, 10)
         return next()
     } else return next()
 })
 
-user_schema.update = async function (id, payload) {
+user_schema.update = async function(id, payload) {
     try {
 
         payload = JSON.parse(JSON.stringify(payload))
@@ -52,23 +50,22 @@ user_schema.update = async function (id, payload) {
 }
 
 //returns user object without auth
-user_schema.logIn = async function (username, password) {
+user_schema.logIn = async function(username, password) {
 
     let _user = await this.getUserBy('username', username)
-    if (!_user) return null
-    if (_user.isDisabled) return null
 
-    let match = await bcrypt.compare(password, _user.auth.password)
+    if (!_user || _user.isDisabled) return null
 
-    if (match) {
-        delete _user.auth
-        return _user
+    let match = await bcrypt.compare(password, _user.password)
+    if (!match) return null
 
-    } else return null
+    delete _user.password
+    return _user
+
 }
 
 
-user_schema.getView = async (username) => {
+user_schema.getView = async(username) => {
     try {
 
         return await r.db('ozen_db').table('users')
@@ -76,8 +73,8 @@ user_schema.getView = async (username) => {
                 .and(r.row('isActive').eq(true))
                 .and(r.row('isDisabled').eq(false)))
             .nth(0)
-            .without('auth')
-            .merge(function (user) {
+            .without('password')
+            .merge(function(user) {
                 return {
                     identities: r.db('ozen_db').table('identities')
                         .getAll(user('id'), {
@@ -95,15 +92,15 @@ user_schema.getView = async (username) => {
     }
 }
 
-user_schema.getAllView = async () => {
+user_schema.getAllView = async() => {
 
     try {
 
         return await r.db('ozen_db').table('users')
             .filter(r.row('isActive').eq(true)
                 .and(r.row('isDisabled').eq(false)))
-            .without('auth')
-            .merge(function (user) {
+            .without('password')
+            .merge(function(user) {
                 return {
                     identities: r.db('ozen_db').table('identities')
                         .getAll(user('id'), {
@@ -119,7 +116,7 @@ user_schema.getAllView = async () => {
     }
 }
 
-user_schema.getUserBy = async (criteria, value) => {
+user_schema.getUserBy = async(criteria, value) => {
     try {
         if (criteria === "password") return null
         else return await r.db('ozen_db').table('users').filter(r.row(criteria).eq(value)).nth(0);
@@ -136,7 +133,7 @@ user_schema.docAddListener('saved', (doc) => {
     console.log('[log] user created: (', doc.username, ')', '(', doc.id, ')')
 });
 
-user_schema.addListener('retrieved', function (doc) {
+user_schema.addListener('retrieved', function(doc) {
     doc.retrieved = new Date();
 });
 

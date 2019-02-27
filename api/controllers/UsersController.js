@@ -10,13 +10,13 @@ const {
 
 const user_controller = {
 
-    list: async (req, res) => {
+    list: async(req, res) => {
         let data = await user.getAllView()
 
         return res.status(200).json(data)
     },
 
-    search: async (req, res) => {
+    search: async(req, res) => {
 
         let username = req.param('username')
         try {
@@ -32,38 +32,35 @@ const user_controller = {
         }
     },
 
-    create: async (req, res) => {
+    create: async(req, res) => {
         try {
 
+            let created_user = {}
 
-            let email = req.body.email;
-            let name = req.body.name;
-            let username = req.body.username;
-            let password = req.body.password;
-
-            if (isEmpty(email, name, username, password)) return res.send("Empty fields!").status(400)
-
-            let _user = {
-                email,
-                name,
+            let container = {
                 username,
-                auth: {
-                    password
-                }
-            }
+                password,
+                email,
+                name
+            } = req.body
 
-            let data = await user.filter(r.row('username').eq(username)
-                .or(r.row('email').eq(email)))
+            if (isEmpty(username, password)) return res.status(400).send("Empty username or password")
+            if (isEmpty(email)) return res.status(400).send("Empty email")
 
-            if (data[0])
-                return res.status(409).send('ERROR: Existing username/email!') //conflict
+            let p1 = user.getUserBy('username', username);
+            let p2 = user.getUserBy('email', email);
+            let search = await Promise.all([p1, p2])
 
-            let created_user = await new user(_user).save()
+            if (search[0] || search[1])
+                return res.status(409).send('Username or email already exists!')
+
+            created_user = await new user(container).save()
+            delete created_user.password
 
             return res.status(201).json({
-                title: 'User created',
-                content: created_user
-            }) //created!
+                    title: 'User created',
+                    content: created_user
+                }) //created!
 
 
         } catch (error) {
@@ -73,7 +70,7 @@ const user_controller = {
 
     },
 
-    update: async (req, res) => {
+    update: async(req, res) => {
         try {
 
 
@@ -88,7 +85,7 @@ const user_controller = {
                 if (!data.isDeveloper) return res.sendStatus(403) //Forbidden
             }
 
-            if(data.isDisabled || !data.isActive) return res.sendStatus(404) //TODO not found
+            if (data.isDisabled || !data.isActive) return res.sendStatus(404) //TODO not found
 
             let body = req.body
             let container = require('../../lib/fieldParser')(body, res)
@@ -133,7 +130,7 @@ const user_controller = {
 
     },
 
-    delete: async (req, res) => {
+    delete: async(req, res) => {
 
         let credentials = req.auth_user
         let username = req.params.username
@@ -146,7 +143,7 @@ const user_controller = {
             if (!data.isDeveloper) return res.sendStatus(403) //Forbidden
         }
 
-        if(data.isDisabled || !data.isActive) return res.sendStatus(404) //TODO conflict (409)
+        if (data.isDisabled || !data.isActive) return res.sendStatus(404) //TODO conflict (409)
         let container = {
             isActive: false,
             lastUpdateAt: new Date()

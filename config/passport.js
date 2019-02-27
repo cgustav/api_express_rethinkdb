@@ -4,7 +4,7 @@ let {
 } = require('../api/models/index');
 const dotenv = require('dotenv').config()
 const bcrypt = require('bcrypt')
-//strategy
+    //strategy
 const LocalStrategy = require('passport-local').Strategy
 const GitHubStrategy = require('passport-github').Strategy
 const GitLabStrategy = require('passport-gitlab2').Strategy
@@ -14,15 +14,15 @@ const GitLabStrategy = require('passport-gitlab2').Strategy
 // De esta manera, mantenemos el código separado en varios archivos
 // logrando que sea más manejable.
 
-module.exports = function (passport) {
+module.exports = function(passport) {
 
     // Serializes the user to store it in the session
-    passport.serializeUser(function (user, done) {
+    passport.serializeUser(function(user, done) {
         done(null, user);
     });
 
     // Deserialize the stored user object in the session to use it
-    passport.deserializeUser(function (obj, done) {
+    passport.deserializeUser(function(obj, done) {
         done(null, obj);
     });
 
@@ -31,7 +31,7 @@ module.exports = function (passport) {
     =               LOCAL STRAGEGY                =
     =============================================*/
     passport.use('local', new LocalStrategy(
-        async function (username, password, done) {
+        async function(username, password, done) {
             try {
                 let match = await user.logIn(username, password)
 
@@ -53,52 +53,52 @@ module.exports = function (passport) {
     /*=============================================
     =               GITHUB STRAGEGY               =
     =============================================*/
-    const GITHUB_CB = "/auth/github/callback"
-    passport.use(new GitHubStrategy({
-            clientID: process.env.GITHUB_CLIENT_ID,
-            clientSecret: process.env.GITHUB_CLIENT_SECRET,
-            callbackURL: process.env.GITHUB_CLIENT_CB || GITHUB_CB
-        },
-        async function (accessToken, refreshToken, profile, cb) {
+    // const GITHUB_CB = "/auth/github/callback"
+    // passport.use(new GitHubStrategy({
+    //         clientID: process.env.GITHUB_CLIENT_ID,
+    //         clientSecret: process.env.GITHUB_CLIENT_SECRET,
+    //         callbackURL: process.env.GITHUB_CLIENT_CB || GITHUB_CB
+    //     },
+    //     async function(accessToken, refreshToken, profile, cb) {
 
-            try {
+    //         try {
 
-                let identityData = await identities.filter({
-                    provider: profile.provider,
-                    extern_uid: profile.id
-                })
+    //             let identityData = await identities.filter({
+    //                 provider: profile.provider,
+    //                 extern_uid: profile.id
+    //             })
 
-                if (identityData[0]) {
-                    let userData = await user.get(identityData[0].user_id)
-                    if (userData) return cb(null, userData)
-                    else return cb(null, false)
+    //             if (identityData[0]) {
+    //                 let userData = await user.get(identityData[0].user_id)
+    //                 if (userData) return cb(null, userData)
+    //                 else return cb(null, false)
 
-                }
+    //             }
 
-                let _user = await new user({
-                    displayName: profile.displayName,
-                    username: profile.username,
-                    email: profile.emails[0].value,
-                    photo: profile.photos[0].value,
-                    location: profile._json.location,
-                    isVerified: true
-                }).save()
+    //             let _user = await new user({
+    //                 displayName: profile.displayName,
+    //                 username: profile.username,
+    //                 email: profile.emails[0].value,
+    //                 photo: profile.photos[0].value,
+    //                 location: profile._json.location,
+    //                 isVerified: true
+    //             }).save()
 
-                let _identity = await new identities({
-                    provider: profile.provider,
-                    extern_uid: profile.id,
-                    profile_url: profile.profileUrl,
-                    user_id: _user.id
-                }).save()
+    //             let _identity = await new identities({
+    //                 provider: profile.provider,
+    //                 extern_uid: profile.id,
+    //                 profile_url: profile.profileUrl,
+    //                 user_id: _user.id
+    //             }).save()
 
-                return cb(null, _user)
+    //             return cb(null, _user)
 
-            } catch (error) {
-                console.log('cannot authenticate github access :  ', error)
-                return cb(error)
-            }
-        }
-    ));
+    //         } catch (error) {
+    //             console.log('cannot authenticate github access :  ', error)
+    //             return cb(error)
+    //         }
+    //     }
+    // ));
 
 
 
@@ -112,7 +112,7 @@ module.exports = function (passport) {
             clientSecret: process.env.GITLAB_CLIENT_SECRET,
             callbackURL: process.env.GITHUB_CLIENT_CB || GITLAB_CB
         },
-        async function (accessToken, refreshToken, profile, cb) {
+        async function(accessToken, refreshToken, profile, next) {
 
             try {
 
@@ -123,8 +123,8 @@ module.exports = function (passport) {
 
                 if (identityData[0]) {
                     let userData = await user.get(identityData[0].user_id)
-                    if (userData) return cb(null, userData)
-                    else return cb(null, false)
+                    if (userData) return next(null, userData)
+                    else return next(null, false)
 
                 }
 
@@ -148,10 +148,10 @@ module.exports = function (passport) {
 
                 //console.log(_user)
 
-                return cb(false, _user)
+                return next(false, _user)
             } catch (error) {
                 console.log('cannot authenticate gitlab access :  ', error)
-                return cb(error)
+                return next(error)
             }
         }
     ));

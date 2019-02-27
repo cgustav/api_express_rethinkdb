@@ -15,7 +15,7 @@ const auth_controller = {
     // LOGIN ===============================
     // =====================================
 
-    login: async (req, res) => {
+    login: async(req, res) => {
         passportHandler('local', req, res)
 
     },
@@ -49,14 +49,14 @@ function passportHandler(strategyName, req, res) {
 
             if ((err) || (!_user)) return res.status(400).send({
                 message: info.message,
-                user
+                user: _user
             }); //BAD REQUEST
 
-            if (_user.isDisabled) return res.sendStatus(404) //Banned
+            if (_user.isDisabled) return res.sendStatus(400) //Banned
 
             //TODO modifications
             if (!_user.isActive) {
-                await user.update(_user.id,{
+                await user.update(_user.id, {
                     isActive: true,
                     lastUpdateAt: new Date()
                 })
@@ -73,7 +73,7 @@ function passportHandler(strategyName, req, res) {
             let token = jwtSign(_user, options)
 
             let response = {
-                user:_user,
+                user: _user,
                 token
             }
 
@@ -81,7 +81,7 @@ function passportHandler(strategyName, req, res) {
 
         } catch (error) {
             console.log(error)
-            //if(error.name) console.log(error.name)
+                //if(error.name) console.log(error.name)
             return res.sendStatus(500) //TODO improve responses
         }
     })(req, res)
